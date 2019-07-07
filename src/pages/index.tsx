@@ -6,7 +6,8 @@ import Seo from "../components/Seo"
 import logo from "../images/logo.svg"
 
 const Main = styled.main`
-  min-height: 100vh;
+  margin: 12px;
+  min-height: calc(100vh - 24px);
   display: flex;
   flex-direction: column;
   justify-content: center;
