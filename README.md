@@ -1,10 +1,10 @@
-# Feeling Authentication
+# Feeling Website
 
-> OAuth 2.0 Authentication Website for Feeling
+> ❤️ Smart mood tracking app for Android
 
 ## How To Use
 
-1. Install dependancies
+1. Install dependencies
 
 ```bash
 npm install

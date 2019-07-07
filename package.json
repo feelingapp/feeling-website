@@ -1,7 +1,7 @@
 {
-  "name": "feeling-authentication",
+  "name": "feeling-website",
   "private": true,
-  "description": "OAuth 2.0 Authentication Website for Feeling ",
+  "description": "❤️ Smart mood tracking app for Android",
   "version": "0.1.0",
   "author": "Pav Sidhu <pav@pavsidhu.com>",
   "dependencies": {
@@ -43,9 +43,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pavsidhu/feeling-authentication"
+    "url": "https://github.com/pavsidhu/feeling-website"
   },
   "bugs": {
-    "url": "https://github.com/pavsidhu/feeling-authentication/issues"
+    "url": "https://github.com/pavsidhu/feeling-website/issues"
   }
 }
