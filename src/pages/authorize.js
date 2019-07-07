@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react"
 import styled, { css } from "styled-components"
 import queryString from "query-string"
 
-import Layout from "../components/layout"
-import SEO from "../components/seo"
+import Layout from "../components/Layout"
+import Seo from "../components/Seo"
 import backIcon from "../images/back-icon.svg"
 
 const Main = styled.main`
@@ -162,7 +162,7 @@ function IndexPage() {
 
   return (
     <Layout>
-      <SEO title="Sign In" />
+      <Seo title="Sign In" />
 
       <Main input={input}>
         <ProgressBar progress={`${(input + 1) * 25}%`} />
