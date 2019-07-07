@@ -126,7 +126,7 @@ async function submitForm(formData) {
   })
 
   const { authorization_code } = response.json()
-  redirectUrlParams = queryString.stringify({ authorization_code })
+  const redirectUrlParams = queryString.stringify({ authorization_code })
   window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParams}`
 }
 
