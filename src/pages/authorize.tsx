@@ -79,13 +79,6 @@ const Form = styled.form`
   padding: 20px;
 `
 
-const InputContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`
-
 const Input = styled.input`
   border: none;
   background-color: inherit;
@@ -129,7 +122,7 @@ interface FormData {
 async function submitForm(formData: FormData) {
   const urlParameters = queryString.parse(window.location.search)
 
-  const response = fetch(`${process.env.API_URL}/authorize`, {
+  const response = await fetch(`${process.env.API_URL}/authorize`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -194,52 +187,51 @@ function Authorize() {
         </Nav>
 
         <Form>
-          <InputContainer>
-            {input === 0 && (
-              <Input
-                ref={emailRef}
-                type="email"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={event =>
-                  setFormData({ ...formData, email: event.target.value })
-                }
-              />
-            )}
-            {input === 1 && (
-              <Input
-                ref={passwordRef}
-                type="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={event =>
-                  setFormData({ ...formData, password: event.target.value })
-                }
-              />
-            )}
-            {input === 2 && (
-              <Input
-                ref={firstNameRef}
-                type="text"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={event =>
-                  setFormData({ ...formData, firstName: event.target.value })
-                }
-              />
-            )}
-            {input === 3 && (
-              <Input
-                ref={lastNameRef}
-                type="text"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={event =>
-                  setFormData({ ...formData, lastName: event.target.value })
-                }
-              />
-            )}
-          </InputContainer>
+          {input === 0 && (
+            <Input
+              ref={emailRef}
+              type="email"
+              placeholder="Email address"
+              value={formData.email}
+              onChange={event =>
+                setFormData({ ...formData, email: event.target.value })
+              }
+            />
+          )}
+          {input === 1 && (
+            <Input
+              ref={passwordRef}
+              type="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={event =>
+                setFormData({ ...formData, password: event.target.value })
+              }
+            />
+          )}
+          {input === 2 && (
+            <Input
+              ref={firstNameRef}
+              type="text"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={event =>
+                setFormData({ ...formData, firstName: event.target.value })
+              }
+            />
+          )}
+          {input === 3 && (
+            <Input
+              ref={lastNameRef}
+              type="text"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={event =>
+                setFormData({ ...formData, lastName: event.target.value })
+              }
+            />
+          )}
+
           <Button
             onClick={() => {
               if (input === 3) submitForm(formData)
