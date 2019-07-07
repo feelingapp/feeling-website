@@ -6,7 +6,11 @@ import Layout from "../components/Layout"
 import Seo from "../components/Seo"
 import backIcon from "../images/back-icon.svg"
 
-const Main = styled.main`
+interface MainProps {
+  input: number
+}
+
+const Main = styled.main<MainProps>`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -37,7 +41,11 @@ const Main = styled.main`
   }};
 `
 
-const ProgressBar = styled.div`
+interface ProgressBarProps {
+  progress: string
+}
+
+const ProgressBar = styled.div<ProgressBarProps>`
   align-self: flex-start;
   background-color: #fefefe;
   transition: width 100ms ease-out;
@@ -111,7 +119,14 @@ const Button = styled.div`
   }
 `
 
-async function submitForm(formData) {
+interface FormData {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+}
+
+async function submitForm(formData: FormData) {
   const urlParameters = queryString.parse(window.location.search)
 
   const response = fetch(`${process.env.API_URL}/authorize`, {
@@ -125,7 +140,7 @@ async function submitForm(formData) {
     })
   })
 
-  const { authorization_code } = response.json()
+  const { authorization_code } = await response.json()
   const redirectUrlParams = queryString.stringify({ authorization_code })
   window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParams}`
 }
@@ -172,7 +187,7 @@ function Authorize() {
             src={backIcon}
             alt="Back"
             onClick={() => {
-              if (input === 0) window.history.back();
+              if (input === 0) window.history.back()
               else setInput(input - 1)
             }}
           />

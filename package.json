@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "author": "Pav Sidhu <pav@pavsidhu.com>",
   "dependencies": {
+    "@types/react-helmet": "^5.0.8",
     "@types/styled-components": "^4.1.16",
     "babel-plugin-styled-components": "^1.10.6",
     "gatsby": "^2.13.7",
