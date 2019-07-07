@@ -117,15 +117,24 @@ function IndexPage() {
   const lastNameRef = useRef()
 
   const [input, setInput] = useState(0)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: ""
+  })
 
   useEffect(() => {
     switch (input) {
       case 0:
         if (emailRef.current) emailRef.current.focus()
+        break
       case 1:
         if (passwordRef.current) passwordRef.current.focus()
+        break
       case 2:
         if (firstNameRef.current) firstNameRef.current.focus()
+        break
       default:
         break
     }
@@ -152,16 +161,48 @@ function IndexPage() {
         <Form>
           <InputContainer>
             {input === 0 && (
-              <Input ref={emailRef} type="email" placeholder="Email address" />
+              <Input
+                ref={emailRef}
+                type="email"
+                placeholder="Email address"
+                value={formData.email}
+                onChange={event =>
+                  setFormData({ ...formData, email: event.target.value })
+                }
+              />
             )}
             {input === 1 && (
-              <Input ref={passwordRef} type="password" placeholder="Password" />
+              <Input
+                ref={passwordRef}
+                type="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={event =>
+                  setFormData({ ...formData, password: event.target.value })
+                }
+              />
             )}
             {input === 2 && (
-              <Input ref={firstNameRef} type="text" placeholder="First Name" />
+              <Input
+                ref={firstNameRef}
+                type="text"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={event =>
+                  setFormData({ ...formData, firstName: event.target.value })
+                }
+              />
             )}
             {input === 3 && (
-              <Input ref={lastNameRef} type="text" placeholder="Last Name" />
+              <Input
+                ref={lastNameRef}
+                type="text"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={event =>
+                  setFormData({ ...formData, lastName: event.target.value })
+                }
+              />
             )}
           </InputContainer>
           <Button
