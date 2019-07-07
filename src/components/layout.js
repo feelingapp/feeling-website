@@ -14,6 +14,12 @@ const GlobalStyle = createGlobalStyle`
     font-size: 62.5%;
     background: #fefefe;
   }
+
+  *:not(input) {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+  }
 `
 
 const Layout = ({ children }) => (
