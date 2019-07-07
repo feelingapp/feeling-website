@@ -172,8 +172,8 @@ function Authorize() {
             src={backIcon}
             alt="Back"
             onClick={() => {
-              if (input === 0) return
-              setInput(input - 1)
+              if (input === 0) window.history.back();
+              else setInput(input - 1)
             }}
           />
         </Nav>
