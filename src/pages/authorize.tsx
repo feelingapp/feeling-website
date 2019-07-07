@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import styled, { css } from "styled-components"
 import queryString from "query-string"
+import isEmail from "isemail"
 
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
@@ -79,6 +80,13 @@ const Form = styled.form`
   padding: 20px;
 `
 
+const InputContainer = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`
+
 const Input = styled.input`
   border: none;
   background-color: inherit;
@@ -86,13 +94,18 @@ const Input = styled.input`
   font-size: inherit;
   color: inherit;
   font-weight: inherit;
-  margin-bottom: 24px;
-  flex: 1;
+  margin-bottom: 16px;
   outline: none;
 
   ::placeholder {
     color: inherit;
   }
+`
+
+const Error = styled.p`
+  font-size: 1.6rem;
+  font-weight: normal;
+  color: #b70808;
 `
 
 const Button = styled.div`
@@ -145,6 +158,81 @@ async function submitForm(formData: FormData) {
   window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParams}`
 }
 
+function validate(input: FormInput, formData: FormData) {
+  const NUMBER = 100
+
+  switch (input) {
+    case FormInput.Email:
+      const { email } = formData
+
+      if (email.trim() === "")
+        return { isValid: false, error: "Please enter an email address" }
+      if (!isEmail.validate(email.trim()))
+        return { isValid: false, error: "Please enter a valid email address" }
+      if (email.length > NUMBER)
+        return {
+          isValid: false,
+          error: "Your email address cannot be greater than NUMBER characters"
+        }
+
+      return { isValid: true, error: undefined }
+
+    case FormInput.Password:
+      const { password } = formData
+
+      if (password.length < 8)
+        return {
+          isValid: false,
+          error: "Please enter a password that is 8 characters or greater"
+        }
+      if (/[a-z]/.test(password) === false)
+        return {
+          isValid: false,
+          error: "Please enter a password that includes a lowercase letter"
+        }
+      if (/[A-Z]/.test(password) === false)
+        return {
+          isValid: false,
+          error: "Please enter a password that includes an uppercase letter"
+        }
+      if (/[0-9]/.test(password) === false)
+        return {
+          isValid: false,
+          error: "Please enter a password that includes a number"
+        }
+
+      return { isValid: true, error: undefined }
+
+    case FormInput.FirstName:
+      const { firstName } = formData
+
+      if (firstName.trim() === "")
+        return { isValid: false, error: "Please enter your first name" }
+      if (firstName.length > NUMBER)
+        return {
+          isValid: false,
+          error: "Your first name cannot be greater than NUMBER characters"
+        }
+
+      return { isValid: true, error: undefined }
+
+    case FormInput.LastName:
+      const { lastName } = formData
+      if (lastName.trim() === "")
+        return { isValid: false, error: "Please enter your last name" }
+      if (lastName.length > NUMBER)
+        return {
+          isValid: false,
+          error: "Your last name cannot be greater than NUMBER characters"
+        }
+
+      return { isValid: true, error: undefined }
+
+    default:
+      break
+  }
+}
+
 function Authorize() {
   const emailRef = useRef()
   const passwordRef = useRef()
@@ -158,6 +246,7 @@ function Authorize() {
     firstName: "",
     lastName: ""
   })
+  const [errorMessage, setErrorMessage] = useState<string>(undefined)
 
   useEffect(() => {
     switch (input) {
@@ -189,60 +278,74 @@ function Authorize() {
             onClick={() => {
               if (input === FormInput.Email) window.history.back()
               else setInput(input - 1)
+
+              setErrorMessage(undefined)
             }}
           />
         </Nav>
 
         <Form>
-          {input === FormInput.Email && (
-            <Input
-              ref={emailRef}
-              type="email"
-              placeholder="Email address"
-              value={formData.email}
-              onChange={event =>
-                setFormData({ ...formData, email: event.target.value })
-              }
-            />
-          )}
-          {input === FormInput.Password && (
-            <Input
-              ref={passwordRef}
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={event =>
-                setFormData({ ...formData, password: event.target.value })
-              }
-            />
-          )}
-          {input === FormInput.FirstName && (
-            <Input
-              ref={firstNameRef}
-              type="text"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={event =>
-                setFormData({ ...formData, firstName: event.target.value })
-              }
-            />
-          )}
-          {input === FormInput.LastName && (
-            <Input
-              ref={lastNameRef}
-              type="text"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={event =>
-                setFormData({ ...formData, lastName: event.target.value })
-              }
-            />
-          )}
+          <InputContainer>
+            {input === FormInput.Email && (
+              <Input
+                ref={emailRef}
+                type="email"
+                placeholder="Email address"
+                value={formData.email}
+                onChange={event =>
+                  setFormData({ ...formData, email: event.target.value })
+                }
+              />
+            )}
+            {input === FormInput.Password && (
+              <Input
+                ref={passwordRef}
+                type="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={event =>
+                  setFormData({ ...formData, password: event.target.value })
+                }
+              />
+            )}
+            {input === FormInput.FirstName && (
+              <Input
+                ref={firstNameRef}
+                type="text"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={event =>
+                  setFormData({ ...formData, firstName: event.target.value })
+                }
+              />
+            )}
+            {input === FormInput.LastName && (
+              <Input
+                ref={lastNameRef}
+                type="text"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={event =>
+                  setFormData({ ...formData, lastName: event.target.value })
+                }
+              />
+            )}
+            <Error>{errorMessage}</Error>
+          </InputContainer>
 
           <Button
             onClick={() => {
+              const { isValid, error } = validate(input, formData)
+
+              if (!isValid) {
+                setErrorMessage(error)
+                return
+              }
+
               if (input === FormInput.LastName) submitForm(formData)
               else setInput(input + 1)
+
+              setErrorMessage(undefined)
             }}
           >
             {input === FormInput.LastName ? "Finish" : "Next"}
