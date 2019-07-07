@@ -112,6 +112,13 @@ const Button = styled.div`
   }
 `
 
+enum FormInput {
+  Email = 0,
+  Password = 1,
+  FirstName = 2,
+  LastName = 3
+}
+
 interface FormData {
   email: string
   password: string
@@ -144,8 +151,8 @@ function Authorize() {
   const firstNameRef = useRef()
   const lastNameRef = useRef()
 
-  const [input, setInput] = useState(0)
-  const [formData, setFormData] = useState({
+  const [input, setInput] = useState(FormInput.Email)
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
     firstName: "",
@@ -154,13 +161,13 @@ function Authorize() {
 
   useEffect(() => {
     switch (input) {
-      case 0:
+      case FormInput.Email:
         if (emailRef.current) emailRef.current.focus()
         break
-      case 1:
+      case FormInput.Password:
         if (passwordRef.current) passwordRef.current.focus()
         break
-      case 2:
+      case FormInput.FirstName:
         if (firstNameRef.current) firstNameRef.current.focus()
         break
       default:
@@ -180,14 +187,14 @@ function Authorize() {
             src={backIcon}
             alt="Back"
             onClick={() => {
-              if (input === 0) window.history.back()
+              if (input === FormInput.Email) window.history.back()
               else setInput(input - 1)
             }}
           />
         </Nav>
 
         <Form>
-          {input === 0 && (
+          {input === FormInput.Email && (
             <Input
               ref={emailRef}
               type="email"
@@ -198,7 +205,7 @@ function Authorize() {
               }
             />
           )}
-          {input === 1 && (
+          {input === FormInput.Password && (
             <Input
               ref={passwordRef}
               type="password"
@@ -209,7 +216,7 @@ function Authorize() {
               }
             />
           )}
-          {input === 2 && (
+          {input === FormInput.FirstName && (
             <Input
               ref={firstNameRef}
               type="text"
@@ -220,7 +227,7 @@ function Authorize() {
               }
             />
           )}
-          {input === 3 && (
+          {input === FormInput.LastName && (
             <Input
               ref={lastNameRef}
               type="text"
@@ -234,11 +241,11 @@ function Authorize() {
 
           <Button
             onClick={() => {
-              if (input === 3) submitForm(formData)
+              if (input === FormInput.LastName) submitForm(formData)
               else setInput(input + 1)
             }}
           >
-            {input === 3 ? "Finish" : "Next"}
+            {input === FormInput.LastName ? "Finish" : "Next"}
           </Button>
         </Form>
       </Main>
