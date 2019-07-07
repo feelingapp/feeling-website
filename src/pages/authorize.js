@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import styled, { css } from "styled-components"
+import queryString from "query-string"
 
 import Layout from "../components/layout"
 import SEO from "../components/seo"
@@ -110,6 +111,25 @@ const Button = styled.div`
   }
 `
 
+async function submitForm(formData) {
+  const urlParameters = queryString.parse(window.location.search)
+
+  const response = fetch(`${process.env.API_URL}/authorize`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      ...urlParameters,
+      ...formData
+    })
+  })
+
+  const { authorization_code } = response.json()
+  redirectUrlParams = queryString.stringify({ authorization_code })
+  window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParams}`
+}
+
 function IndexPage() {
   const emailRef = useRef()
   const passwordRef = useRef()
@@ -207,7 +227,7 @@ function IndexPage() {
           </InputContainer>
           <Button
             onClick={() => {
-              if (input === 3) return
+              if (input === 3) submitForm(formData)
               else setInput(input + 1)
             }}
           >
