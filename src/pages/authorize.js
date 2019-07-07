@@ -130,7 +130,7 @@ async function submitForm(formData) {
   window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParams}`
 }
 
-function IndexPage() {
+function Authorize() {
   const emailRef = useRef()
   const passwordRef = useRef()
   const firstNameRef = useRef()
@@ -239,4 +239,4 @@ function IndexPage() {
   )
 }
 
-export default IndexPage
+export default Authorize
