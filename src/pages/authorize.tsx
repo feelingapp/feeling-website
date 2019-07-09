@@ -3,8 +3,7 @@ import styled, { css } from "styled-components"
 import queryString from "query-string"
 import isEmail from "isemail"
 
-import Layout from "../components/Layout"
-import Seo from "../components/Seo"
+import { Layout, Seo } from "../components"
 import backIcon from "../images/back-icon.svg"
 
 interface MainProps {
