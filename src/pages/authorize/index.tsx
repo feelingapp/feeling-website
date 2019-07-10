@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import styled, { css } from "styled-components"
 import queryString from "query-string"
 
-import { Layout, Seo } from "../../components"
+import { Layout, Nav, Seo } from "../../components"
 import {
   checkAccountExists,
   signIn,
@@ -61,20 +61,6 @@ const ProgressBar = styled.div<ProgressBarProps>`
   width: ${({ progress }) => progress};
 `
 
-const Nav = styled.nav`
-  height: 56px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 4px;
-`
-
-const NavIcon = styled.img`
-  height: 48px;
-  width: 48px;
-  padding: 12px;
-`
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -84,7 +70,7 @@ const Form = styled.form`
   color: #1b1b1b;
   width: 100%;
   flex: 1;
-  padding: 20px;
+  padding: 0 20px 20px;
 `
 
 const InputContainer = styled.div`
@@ -232,9 +218,14 @@ function Authorize() {
           progress={`${(currentInput + 1) * (hasAccount ? 50 : 25)}%`}
         />
 
-        <Nav>
-          <NavIcon src={backIcon} alt="Back" onClick={handleNavBackClick} />
-        </Nav>
+        <Nav
+          title={"Welcome Back, Pav"}
+          leftIcon={{
+            src: backIcon,
+            alt: "back",
+            onClick: handleNavBackClick
+          }}
+        />
 
         <Form>
           <InputContainer>
