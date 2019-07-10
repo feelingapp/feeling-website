@@ -15,6 +15,12 @@ const Icon = styled.img`
   padding: 12px;
 `
 
+const IconPlaceHolder = styled.div`
+  height: 48px;
+  width: 48px;
+  padding: 12px;
+`
+
 const Title = styled.h1`
   flex: 1;
   font-size: 2rem;
@@ -38,19 +44,27 @@ interface Props {
 
 const Nav = (props: Props) => (
   <Container>
-    <Icon
-      src={props.leftIcon && props.leftIcon.src}
-      alt={props.leftIcon && props.leftIcon.alt}
-      onClick={props.leftIcon && props.leftIcon.onClick}
-    />
+    {props.leftIcon ? (
+      <Icon
+        src={props.leftIcon.src}
+        alt={props.leftIcon.alt}
+        onClick={props.leftIcon.onClick}
+      />
+    ) : (
+      <IconPlaceHolder />
+    )}
 
     <Title>{props.title}</Title>
 
-    <Icon
-      src={props.rightIcon && props.rightIcon.src}
-      alt={props.rightIcon && props.rightIcon.alt}
-      onClick={props.rightIcon && props.rightIcon.onClick}
-    />
+    {props.rightIcon ? (
+      <Icon
+        src={props.rightIcon.src}
+        alt={props.rightIcon.alt}
+        onClick={props.rightIcon.onClick}
+      />
+    ) : (
+      <IconPlaceHolder />
+    )}
   </Container>
 )
 
