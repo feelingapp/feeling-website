@@ -1,13 +1,21 @@
 import React, { useEffect, useRef, useState } from "react"
 import styled, { css } from "styled-components"
 import queryString from "query-string"
-import isEmail from "isemail"
 
-import { Layout, Seo } from "../components"
-import backIcon from "../images/back-icon.svg"
+import { Layout, Seo } from "../../components"
+import {
+  checkAccountExists,
+  signIn,
+  register,
+  SignInBody,
+  RegisterBody
+} from "./api"
+import validate, { validateUrlParameters } from "./validate"
+import { FormData, FormInput } from "./types"
+import backIcon from "../../images/back-icon.svg"
 
 interface MainProps {
-  input: number
+  currentInput: number
 }
 
 const Main = styled.main<MainProps>`
@@ -18,23 +26,23 @@ const Main = styled.main<MainProps>`
   align-items: center;
   transition: background-color 100ms;
 
-  ${({ input }) => {
-    if (input === 0)
+  ${({ currentInput }) => {
+    if (currentInput === 0)
       return css`
         background-color: #caeaf8;
       `
 
-    if (input === 1)
+    if (currentInput === 1)
       return css`
         background-color: #e4d0f2;
       `
 
-    if (input === 2)
+    if (currentInput === 2)
       return css`
         background-color: #f8edca;
       `
 
-    if (input === 3)
+    if (currentInput === 3)
       return css`
         background-color: #cef8ca;
       `
@@ -124,131 +132,43 @@ const Button = styled.div`
   }
 `
 
-enum FormInput {
-  Email = 0,
-  Password = 1,
-  FirstName = 2,
-  LastName = 3
-}
-
-interface FormData {
-  email: string
-  password: string
-  firstName: string
-  lastName: string
-}
-
-async function submitForm(formData: FormData) {
+async function submitForm(formData: FormData, hasAccount: boolean) {
   const urlParameters = queryString.parse(window.location.search)
 
-  const response = await fetch(`${process.env.API_URL}/authorize`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      ...urlParameters,
-      ...formData
-    })
-  })
+  const response = hasAccount
+    ? await signIn({ ...urlParameters, ...formData } as SignInBody)
+    : await register({ ...urlParameters, ...formData } as RegisterBody)
 
   const { authorization_code } = await response.json()
-  const redirectUrlParams = queryString.stringify({ authorization_code })
-  window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParams}`
-}
-
-function validate(input: FormInput, formData: FormData) {
-  const NUMBER = 100
-
-  switch (input) {
-    case FormInput.Email:
-      const { email } = formData
-
-      if (email.trim() === "")
-        return { isValid: false, error: "Please enter an email address" }
-      if (!isEmail.validate(email.trim()))
-        return { isValid: false, error: "Please enter a valid email address" }
-      if (email.length > NUMBER)
-        return {
-          isValid: false,
-          error: "Your email address cannot be greater than NUMBER characters"
-        }
-
-      return { isValid: true, error: undefined }
-
-    case FormInput.Password:
-      const { password } = formData
-
-      if (password.length < 8)
-        return {
-          isValid: false,
-          error: "Please enter a password that is 8 characters or greater"
-        }
-      if (/[a-z]/.test(password) === false)
-        return {
-          isValid: false,
-          error: "Please enter a password that includes a lowercase letter"
-        }
-      if (/[A-Z]/.test(password) === false)
-        return {
-          isValid: false,
-          error: "Please enter a password that includes an uppercase letter"
-        }
-      if (/[0-9]/.test(password) === false)
-        return {
-          isValid: false,
-          error: "Please enter a password that includes a number"
-        }
-
-      return { isValid: true, error: undefined }
-
-    case FormInput.FirstName:
-      const { firstName } = formData
-
-      if (firstName.trim() === "")
-        return { isValid: false, error: "Please enter your first name" }
-      if (firstName.length > NUMBER)
-        return {
-          isValid: false,
-          error: "Your first name cannot be greater than NUMBER characters"
-        }
-
-      return { isValid: true, error: undefined }
-
-    case FormInput.LastName:
-      const { lastName } = formData
-      if (lastName.trim() === "")
-        return { isValid: false, error: "Please enter your last name" }
-      if (lastName.length > NUMBER)
-        return {
-          isValid: false,
-          error: "Your last name cannot be greater than NUMBER characters"
-        }
-
-      return { isValid: true, error: undefined }
-
-    default:
-      break
-  }
+  const redirectUrlParameters = queryString.stringify({ authorization_code })
+  window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParameters}`
 }
 
 function Authorize() {
-  const emailRef = useRef()
-  const passwordRef = useRef()
-  const firstNameRef = useRef()
-  const lastNameRef = useRef()
+  const urlParameters = queryString.parse(window.location.search)
 
-  const [input, setInput] = useState(FormInput.Email)
+  // Go back to the last page if the right url parameters are not supplied
+  if (!validateUrlParameters(urlParameters)) {
+    window.history.back()
+  }
+
+  const [hasAccount, setHasAccount] = useState(false)
+  const [currentInput, setCurrentInput] = useState(FormInput.Email)
+  const [errorMessage, setErrorMessage] = useState<string>("")
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
     firstName: "",
     lastName: ""
   })
-  const [errorMessage, setErrorMessage] = useState<string>(undefined)
+
+  const emailRef = useRef()
+  const passwordRef = useRef()
+  const firstNameRef = useRef()
+  const lastNameRef = useRef()
 
   useEffect(() => {
-    switch (input) {
+    switch (currentInput) {
       case FormInput.Email:
         if (emailRef.current) emailRef.current.focus()
         break
@@ -263,29 +183,62 @@ function Authorize() {
     }
   })
 
+  async function handleButtonClick() {
+    // Check current input is valid
+    const { isValid, error } = validate(currentInput, formData)
+
+    // Show error message if input is not valid
+    if (!isValid) {
+      setErrorMessage(error)
+      return
+    }
+
+    // After inputting an email, check if an account already exists
+    if (currentInput === FormInput.Email) {
+      const accountExists = await checkAccountExists(formData.email)
+      setHasAccount(accountExists)
+    }
+
+    // If the user already has an account, submit the form after they enter their password
+    if (hasAccount && currentInput === FormInput.Password) {
+      submitForm(formData, hasAccount)
+    }
+
+    // The user doesn't have an account, so wait till they finish the whole form to submit
+    if (currentInput === FormInput.LastName) {
+      submitForm(formData, hasAccount)
+    } else setCurrentInput(currentInput + 1)
+
+    // Clear the error message
+    setErrorMessage(undefined)
+  }
+
+  function handleNavBackClick() {
+    // Reset has account since the user is going back to edit the email
+    if (currentInput === FormInput.Password) setHasAccount(false)
+
+    if (currentInput === FormInput.Email) window.history.back()
+    else setCurrentInput(currentInput - 1)
+
+    setErrorMessage(undefined)
+  }
+
   return (
     <Layout>
       <Seo title="Sign In" />
 
-      <Main input={input}>
-        <ProgressBar progress={`${(input + 1) * 25}%`} />
+      <Main currentInput={currentInput}>
+        <ProgressBar
+          progress={`${(currentInput + 1) * (hasAccount ? 50 : 25)}%`}
+        />
 
         <Nav>
-          <NavIcon
-            src={backIcon}
-            alt="Back"
-            onClick={() => {
-              if (input === FormInput.Email) window.history.back()
-              else setInput(input - 1)
-
-              setErrorMessage(undefined)
-            }}
-          />
+          <NavIcon src={backIcon} alt="Back" onClick={handleNavBackClick} />
         </Nav>
 
         <Form>
           <InputContainer>
-            {input === FormInput.Email && (
+            {currentInput === FormInput.Email && (
               <Input
                 ref={emailRef}
                 type="email"
@@ -296,7 +249,8 @@ function Authorize() {
                 }
               />
             )}
-            {input === FormInput.Password && (
+
+            {currentInput === FormInput.Password && (
               <Input
                 ref={passwordRef}
                 type="password"
@@ -307,7 +261,8 @@ function Authorize() {
                 }
               />
             )}
-            {input === FormInput.FirstName && (
+
+            {currentInput === FormInput.FirstName && (
               <Input
                 ref={firstNameRef}
                 type="text"
@@ -318,7 +273,8 @@ function Authorize() {
                 }
               />
             )}
-            {input === FormInput.LastName && (
+
+            {currentInput === FormInput.LastName && (
               <Input
                 ref={lastNameRef}
                 type="text"
@@ -329,25 +285,15 @@ function Authorize() {
                 }
               />
             )}
+
             <Error>{errorMessage}</Error>
           </InputContainer>
 
-          <Button
-            onClick={() => {
-              const { isValid, error } = validate(input, formData)
-
-              if (!isValid) {
-                setErrorMessage(error)
-                return
-              }
-
-              if (input === FormInput.LastName) submitForm(formData)
-              else setInput(input + 1)
-
-              setErrorMessage(undefined)
-            }}
-          >
-            {input === FormInput.LastName ? "Finish" : "Next"}
+          <Button onClick={handleButtonClick}>
+            {currentInput === FormInput.LastName ||
+            (hasAccount && currentInput === FormInput.Password)
+              ? "Finish"
+              : "Next"}
           </Button>
         </Form>
       </Main>
