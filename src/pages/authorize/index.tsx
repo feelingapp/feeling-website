@@ -138,6 +138,7 @@ function Authorize() {
     window.history.back()
   }
 
+  const [isLoading, setIsLoading] = useState(false)
   const [hasAccount, setHasAccount] = useState(false)
   const [currentInput, setCurrentInput] = useState(FormInput.Email)
   const [errorMessage, setErrorMessage] = useState<string>("")
@@ -181,18 +182,25 @@ function Authorize() {
 
     // After inputting an email, check if an account already exists
     if (currentInput === FormInput.Email) {
+      setIsLoading(true)
       const accountExists = await checkAccountExists(formData.email)
-      setHasAccount(accountExists)
+      await setHasAccount(accountExists)
+      await setIsLoading(false)
     }
 
     // If the user already has an account, submit the form after they enter their password
     if (hasAccount && currentInput === FormInput.Password) {
-      submitForm(formData, hasAccount)
+      setIsLoading(true)
+      await submitForm(formData, hasAccount)
+      await setIsLoading(false)
+      await setHasAccount(accountExists)
     }
 
     // The user doesn't have an account, so wait till they finish the whole form to submit
     if (currentInput === FormInput.LastName) {
-      submitForm(formData, hasAccount)
+      setIsLoading(true)
+      await submitForm(formData, hasAccount)
+      await setIsLoading(false)
     } else setCurrentInput(currentInput + 1)
 
     // Clear the error message
@@ -213,7 +221,7 @@ function Authorize() {
     <Layout>
       <Seo title="Sign In" />
 
-      <Loading show={true} />
+      <Loading show={isLoading} />
 
       <Main currentInput={currentInput}>
         <ProgressBar
