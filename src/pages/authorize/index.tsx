@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import styled, { css } from "styled-components"
 import queryString from "query-string"
 
-import { Layout, Nav, Seo } from "../../components"
+import { Layout, Nav, Seo, Loading } from "../../components"
 import {
   checkAccountExists,
   signIn,
@@ -213,13 +213,15 @@ function Authorize() {
     <Layout>
       <Seo title="Sign In" />
 
+      <Loading show={true} />
+
       <Main currentInput={currentInput}>
         <ProgressBar
           progress={`${(currentInput + 1) * (hasAccount ? 50 : 25)}%`}
         />
 
         <Nav
-          title={"Welcome Back, Pav"}
+          title={hasAccount ? "Welcome Back" : "Sign In"}
           leftIcon={{
             src: backIcon,
             alt: "back",
@@ -282,7 +284,7 @@ function Authorize() {
 
           <Button onClick={handleButtonClick}>
             {currentInput === FormInput.LastName ||
-            (hasAccount && currentInput === FormInput.Password)
+            (currentInput === FormInput.Password && hasAccount)
               ? "Finish"
               : "Next"}
           </Button>
