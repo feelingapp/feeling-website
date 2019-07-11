@@ -106,12 +106,12 @@ export function validateUrlParameters(urlParameters: {
   code_challenge?: string
   code_challenge_hash?: string
 }) {
-  // if (!urlParameters.client_id) return false
-  // if (!urlParameters.response_type) return false
-  // if (!urlParameters.redirect_uri) return false
-  // if (!urlParameters.code_challenge_method) return false
-  // if (!urlParameters.code_challenge) return false
-  // if (!urlParameters.code_challenge_hash) return false
+  if (!urlParameters.client_id) return false
+  if (!urlParameters.response_type) return false
+  if (!urlParameters.redirect_uri) return false
+  if (!urlParameters.code_challenge_method) return false
+  if (!urlParameters.code_challenge) return false
+  if (!urlParameters.code_challenge_hash) return false
 
   return true
 }
