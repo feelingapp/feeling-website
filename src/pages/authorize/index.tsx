@@ -119,18 +119,6 @@ const Button = styled.div`
   }
 `
 
-async function submitForm(formData: FormData, accountExists: boolean) {
-  const urlParameters = queryString.parse(window.location.search)
-
-  const response = accountExists
-    ? await signIn({ ...urlParameters, ...formData } as SignInBody)
-    : await register({ ...urlParameters, ...formData } as RegisterBody)
-
-  const { authorization_code } = await response.json()
-  const redirectUrlParameters = queryString.stringify({ authorization_code })
-  window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParameters}`
-}
-
 function Authorize() {
   const urlParameters = queryString.parse(window.location.search)
 
@@ -174,9 +162,20 @@ function Authorize() {
     }
   }, [currentInput, emailRef, passwordRef, firstNameRef])
 
+  function handleNavBackClick() {
+    // Reset has account since the user is going back to edit the email
+    if (currentInput === FormInput.Password)
+      setAccount({ exists: undefined, firstName: undefined })
+
+    if (currentInput === FormInput.Email) window.history.back()
+    else setCurrentInput(currentInput - 1)
+
+    setErrorMessage(undefined)
+  }
+
   async function handleButtonClick() {
     // Check current input is valid
-    const { isValid, error } = validate(currentInput, formData)
+    const { isValid, error } = validate(currentInput, formData, account.exists)
 
     // Show error message if input is not valid
     if (!isValid) {
@@ -187,9 +186,18 @@ function Authorize() {
     // After inputting an email, check if an account already exists
     if (currentInput === FormInput.Email) {
       setIsLoading(true)
-      const account = await checkAccountExists(formData.email)
-      await setAccount(account)
-      await setIsLoading(false)
+
+      try {
+        const account = await checkAccountExists(formData.email)
+        await setAccount(account)
+      } catch (error) {
+        setErrorMessage(
+          "We can't connect to the server, please try again later"
+        )
+        return
+      } finally {
+        await setIsLoading(false)
+      }
     }
 
     // If the user already has an account, submit the form after they enter their password
@@ -210,15 +218,22 @@ function Authorize() {
     setErrorMessage(undefined)
   }
 
-  function handleNavBackClick() {
-    // Reset has account since the user is going back to edit the email
-    if (currentInput === FormInput.Password)
-      setAccount({ exists: undefined, firstName: undefined })
+  async function submitForm(formData: FormData, accountExists: boolean) {
+    const urlParameters = queryString.parse(window.location.search)
 
-    if (currentInput === FormInput.Email) window.history.back()
-    else setCurrentInput(currentInput - 1)
+    try {
+      const response = accountExists
+        ? await signIn({ ...urlParameters, ...formData } as SignInBody)
+        : await register({ ...urlParameters, ...formData } as RegisterBody)
 
-    setErrorMessage(undefined)
+      const { authorization_code } = await response.json()
+      const redirectUrlParameters = queryString.stringify({
+        authorization_code
+      })
+      window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParameters}`
+    } catch (error) {
+      setErrorMessage("We can't connect to the server, please try again later")
+    }
   }
 
   return (
