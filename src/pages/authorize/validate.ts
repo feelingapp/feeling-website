@@ -3,13 +3,19 @@ import { FormInput, FormData } from "./types"
 
 const NUMBER = 100
 
-export default function validate(input: FormInput, formData: FormData) {
+export default function validate(
+  input: FormInput,
+  formData: FormData,
+  accountExists: boolean
+) {
   switch (input) {
     case FormInput.Email:
       return validateEmail(formData.email)
 
     case FormInput.Password:
-      return validatePassword(formData.password)
+      return accountExists
+        ? validateExistingPassword(formData.password)
+        : validatePassword(formData.password)
 
     case FormInput.FirstName:
       return validateFirstName(formData.firstName)
@@ -57,6 +63,13 @@ function validatePassword(password: string) {
       isValid: false,
       error: "Please enter a password that includes a number"
     }
+
+  return { isValid: true, error: undefined }
+}
+
+function validateExistingPassword(password: string) {
+  if (password.trim() === "")
+    return { isValid: false, error: "Please enter your password" }
 
   return { isValid: true, error: undefined }
 }
