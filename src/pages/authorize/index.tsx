@@ -262,7 +262,12 @@ function Authorize() {
           }}
         />
 
-        <Form>
+        <Form
+          onSubmit={event => {
+            event.preventDefault()
+            handleButtonClick()
+          }}
+        >
           <InputContainer>
             {currentInput === FormInput.Email && (
               <Input
