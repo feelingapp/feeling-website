@@ -119,10 +119,10 @@ const Button = styled.div`
   }
 `
 
-async function submitForm(formData: FormData, hasAccount: boolean) {
+async function submitForm(formData: FormData, accountExists: boolean) {
   const urlParameters = queryString.parse(window.location.search)
 
-  const response = hasAccount
+  const response = accountExists
     ? await signIn({ ...urlParameters, ...formData } as SignInBody)
     : await register({ ...urlParameters, ...formData } as RegisterBody)
 
@@ -140,7 +140,10 @@ function Authorize() {
   }
 
   const [isLoading, setIsLoading] = useState(false)
-  const [hasAccount, setHasAccount] = useState(false)
+  const [account, setAccount] = useState({
+    exists: undefined,
+    firstName: undefined
+  })
   const [currentInput, setCurrentInput] = useState(FormInput.Email)
   const [errorMessage, setErrorMessage] = useState<string>("")
   const [formData, setFormData] = useState<FormData>({
@@ -169,7 +172,7 @@ function Authorize() {
       default:
         break
     }
-  })
+  }, [currentInput, emailRef, passwordRef, firstNameRef])
 
   async function handleButtonClick() {
     // Check current input is valid
@@ -184,23 +187,22 @@ function Authorize() {
     // After inputting an email, check if an account already exists
     if (currentInput === FormInput.Email) {
       setIsLoading(true)
-      const accountExists = await checkAccountExists(formData.email)
-      await setHasAccount(accountExists)
+      const account = await checkAccountExists(formData.email)
+      await setAccount(account)
       await setIsLoading(false)
     }
 
     // If the user already has an account, submit the form after they enter their password
-    if (hasAccount && currentInput === FormInput.Password) {
+    if (account.exists && currentInput === FormInput.Password) {
       setIsLoading(true)
-      await submitForm(formData, hasAccount)
+      await submitForm(formData, account.exists)
       await setIsLoading(false)
-      await setHasAccount(accountExists)
     }
 
     // The user doesn't have an account, so wait till they finish the whole form to submit
     if (currentInput === FormInput.LastName) {
       setIsLoading(true)
-      await submitForm(formData, hasAccount)
+      await submitForm(formData, account.exists)
       await setIsLoading(false)
     } else setCurrentInput(currentInput + 1)
 
@@ -210,7 +212,8 @@ function Authorize() {
 
   function handleNavBackClick() {
     // Reset has account since the user is going back to edit the email
-    if (currentInput === FormInput.Password) setHasAccount(false)
+    if (currentInput === FormInput.Password)
+      setAccount({ exists: undefined, firstName: undefined })
 
     if (currentInput === FormInput.Email) window.history.back()
     else setCurrentInput(currentInput - 1)
@@ -226,11 +229,17 @@ function Authorize() {
 
       <Main currentInput={currentInput}>
         <ProgressBar
-          progress={`${(currentInput + 1) * (hasAccount ? 50 : 25)}%`}
+          progress={`${(currentInput + 1) * (account.exists ? 50 : 25)}%`}
         />
 
         <Nav
-          title={hasAccount ? "Welcome Back" : "Sign In"}
+          title={
+            account.exists === undefined
+              ? ""
+              : account.exists
+              ? `Welcome Back, ${account.firstName}!`
+              : "Create an Account"
+          }
           leftIcon={{
             src: backIcon,
             alt: "back",
@@ -293,7 +302,7 @@ function Authorize() {
 
           <Button onClick={handleButtonClick}>
             {currentInput === FormInput.LastName ||
-            (currentInput === FormInput.Password && hasAccount)
+            (currentInput === FormInput.Password && account.exists)
               ? "Finish"
               : "Next"}
           </Button>

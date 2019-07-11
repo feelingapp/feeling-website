@@ -41,7 +41,7 @@ export async function checkAccountExists(email: string) {
   const response = await fetch(
     `${process.env.API_URL}/account/exists?${urlParameters}`
   )
-  const { exists } = await response.json()
+  const { exists, first_name: firstName } = await response.json()
 
-  return exists
+  return { exists, firstName }
 }
