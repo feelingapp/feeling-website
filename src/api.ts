@@ -1,5 +1,4 @@
 import queryString from "query-string"
-import { UrlParameters } from "./types"
 
 export interface SignInBody extends UrlParameters {
   email: string

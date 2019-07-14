@@ -2,17 +2,16 @@ import React, { useEffect, useRef, useState } from "react"
 import styled, { css } from "styled-components"
 import queryString from "query-string"
 
-import { Layout, Nav, Seo, Loading } from "../../components"
+import { Layout, Nav, Seo, Loading } from "../components"
 import {
   checkAccountExists,
   signIn,
   register,
   SignInBody,
   RegisterBody
-} from "./api"
-import validate, { validateUrlParameters } from "./validate"
-import { FormData, FormInput } from "./types"
-import backIcon from "../../images/back-icon.svg"
+} from "../api"
+import validate, { validateUrlParameters } from "../validate"
+import backIcon from "../images/back-icon.svg"
 
 interface MainProps {
   currentInput: number

@@ -1,5 +1,4 @@
 import isEmail from "isemail"
-import { FormInput, FormData } from "./types"
 
 const NUMBER = 100
 
