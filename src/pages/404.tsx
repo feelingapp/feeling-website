@@ -1,7 +1,8 @@
+import { useEffect } from "react"
 import { navigate } from "gatsby"
 
 const NotFound = () => {
-  navigate("/authorize")
+  useEffect(() => navigate("/authorize"))
   return null
 }
 
