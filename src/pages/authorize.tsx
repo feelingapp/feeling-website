@@ -119,6 +119,8 @@ const Button = styled.div`
 `
 
 function Authorize() {
+  if (typeof window === "undefined") return null
+
   const urlParameters = queryString.parse(window.location.search)
 
   // Go back to the last page if the right url parameters are not supplied
