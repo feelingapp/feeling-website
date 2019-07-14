@@ -32,7 +32,7 @@ const Heading = styled.h1`
 
 const Index = () => (
   <Layout>
-    <Seo title="Sign In" />
+    <Seo title="Home" />
 
     <Main>
       <Logo src={logo} alt="Feeling logo" />
