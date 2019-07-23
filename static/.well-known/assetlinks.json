@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.getfeeling.feeling",
+    "sha256_cert_fingerprints":
+    ["3C:21:04:03:1D:81:BC:F0:C8:18:DC:BC:A7:06:2B:90:71:2C:7D:5B:FC:60:7E:72:DE:75:D2:10:46:1C:A2:2D"]
+  }
+}]
