@@ -11,13 +11,6 @@ export interface UrlParameters {
   codeChallenge: string
 }
 
-export enum FormInput {
-  Email = 0,
-  Password = 1,
-  FirstName = 2,
-  LastName = 3
-}
-
 export interface FormData {
   email: string
   password: string

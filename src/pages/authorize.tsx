@@ -12,6 +12,7 @@ import {
 } from "../api"
 import validate, { validateUrlParameters } from "../validate"
 import backIcon from "../images/back-icon.svg"
+import { FormInput } from "../FormInput"
 
 interface MainProps {
   currentInput: number

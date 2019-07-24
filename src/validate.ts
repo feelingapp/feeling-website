@@ -1,4 +1,5 @@
 import isEmail from "isemail"
+import { FormInput } from "./FormInput"
 
 const NUMBER = 100
 
