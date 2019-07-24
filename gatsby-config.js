@@ -21,8 +21,8 @@ module.exports = {
         name: `feeling`,
         short_name: `feeling`,
         start_url: `/`,
-        background_color: `#fefefe`,
-        theme_color: `#fefefe`,
+        background_color: `#caeaf8`,
+        theme_color: `#1b1b1b`,
         display: `browser`,
         icon: `src/images/favicon.png`
       }
