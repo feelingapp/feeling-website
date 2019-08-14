@@ -230,7 +230,8 @@ function Authorize() {
 
       const { authorization_code } = await response.json()
       const redirectUrlParameters = queryString.stringify({
-        authorization_code
+        authorization_code,
+        state: urlParameters.state
       })
       window.location.href = `${urlParameters.redirect_uri}?${redirectUrlParameters}`
     } catch (error) {

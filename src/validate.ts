@@ -104,12 +104,14 @@ export function validateUrlParameters(urlParameters: {
   redirect_uri?: string
   code_challenge_method?: string
   code_challenge?: string
+  state?: string
 }) {
   if (!urlParameters.client_id) return false
   if (!urlParameters.response_type) return false
   if (!urlParameters.redirect_uri) return false
   if (!urlParameters.code_challenge_method) return false
   if (!urlParameters.code_challenge) return false
+  if (!urlParameters.state) return false
 
   return true
 }
