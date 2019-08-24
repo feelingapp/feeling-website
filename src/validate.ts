@@ -1,27 +1,28 @@
 import isEmail from "isemail"
-import { FormInput } from "./FormInput"
+import FormInput from "./FormInput"
+import { AuthorizeForm } from "./pages/authorize"
 
 const NUMBER = 100
 
 export default function validate(
   input: FormInput,
-  formData: FormData,
+  form: AuthorizeForm,
   accountExists: boolean
 ) {
   switch (input) {
     case FormInput.Email:
-      return validateEmail(formData.email)
+      return validateEmail(form.email)
 
     case FormInput.Password:
       return accountExists
-        ? validateExistingPassword(formData.password)
-        : validatePassword(formData.password)
+        ? validateExistingPassword(form.password)
+        : validatePassword(form.password)
 
     case FormInput.FirstName:
-      return validateFirstName(formData.firstName)
+      return validateFirstName(form.firstName)
 
     case FormInput.LastName:
-      return validateLastName(formData.lastName)
+      return validateLastName(form.lastName)
 
     default:
       break

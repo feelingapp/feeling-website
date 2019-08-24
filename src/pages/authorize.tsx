@@ -12,7 +12,22 @@ import {
 } from "../api"
 import validate, { validateUrlParameters } from "../validate"
 import backIcon from "../images/back-icon.svg"
-import { FormInput } from "../FormInput"
+import FormInput from "../FormInput"
+
+export interface UrlParameters {
+  clientId: string
+  responseType: string
+  redirectUri: string
+  codeChallengeMethod: string
+  codeChallenge: string
+}
+
+export interface AuthorizeForm {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+}
 
 interface MainProps {
   currentInput: number
@@ -49,16 +64,12 @@ const Main = styled.main<MainProps>`
   }};
 `
 
-interface ProgressBarProps {
-  progress: string
-}
-
-const ProgressBar = styled.div<ProgressBarProps>`
+const ProgressBar = styled.div`
   align-self: flex-start;
   background-color: #fefefe;
   transition: width 100ms ease-out;
   height: 8px;
-  width: ${({ progress }) => progress};
+  width: ${(props: { progress: string }) => props.progress};
 `
 
 const Form = styled.form`
@@ -136,17 +147,17 @@ function Authorize() {
   })
   const [currentInput, setCurrentInput] = useState(FormInput.Email)
   const [errorMessage, setErrorMessage] = useState<string>("")
-  const [formData, setFormData] = useState<FormData>({
+  const [form, setForm] = useState<AuthorizeForm>({
     email: "",
     password: "",
     firstName: "",
     lastName: ""
   })
 
-  const emailRef = useRef()
-  const passwordRef = useRef()
-  const firstNameRef = useRef()
-  const lastNameRef = useRef()
+  const emailRef = useRef<HTMLInputElement>()
+  const passwordRef = useRef<HTMLInputElement>()
+  const firstNameRef = useRef<HTMLInputElement>()
+  const lastNameRef = useRef<HTMLInputElement>()
 
   useEffect(() => {
     switch (currentInput) {
@@ -177,7 +188,7 @@ function Authorize() {
 
   async function handleButtonClick() {
     // Check current input is valid
-    const { isValid, error } = validate(currentInput, formData, account.exists)
+    const { isValid, error } = validate(currentInput, form, account.exists)
 
     // Show error message if input is not valid
     if (!isValid) {
@@ -190,7 +201,7 @@ function Authorize() {
       setIsLoading(true)
 
       try {
-        const account = await checkAccountExists(formData.email)
+        const account = await checkAccountExists(form.email)
         await setAccount(account)
       } catch (error) {
         setErrorMessage(
@@ -205,14 +216,15 @@ function Authorize() {
     // If the user already has an account, submit the form after they enter their password
     if (account.exists && currentInput === FormInput.Password) {
       setIsLoading(true)
-      await submitForm(formData, account.exists)
+      await submitForm(form, account.exists)
       await setIsLoading(false)
+      return
     }
 
     // The user doesn't have an account, so wait till they finish the whole form to submit
     if (currentInput === FormInput.LastName) {
       setIsLoading(true)
-      await submitForm(formData, account.exists)
+      await submitForm(form, account.exists)
       await setIsLoading(false)
     } else setCurrentInput(currentInput + 1)
 
@@ -220,13 +232,13 @@ function Authorize() {
     setErrorMessage(undefined)
   }
 
-  async function submitForm(formData: FormData, accountExists: boolean) {
+  async function submitForm(form: AuthorizeForm, accountExists: boolean) {
     const urlParameters = queryString.parse(window.location.search)
 
     try {
       const response = accountExists
-        ? await signIn({ ...urlParameters, ...formData } as SignInBody)
-        : await register({ ...urlParameters, ...formData } as RegisterBody)
+        ? await signIn({ ...urlParameters, ...form } as SignInBody)
+        : await register({ ...urlParameters, ...form } as RegisterBody)
 
       const { authorization_code } = await response.json()
       const redirectUrlParameters = queryString.stringify({
@@ -277,9 +289,9 @@ function Authorize() {
                 ref={emailRef}
                 type="email"
                 placeholder="Email address"
-                value={formData.email}
+                value={form.email}
                 onChange={event =>
-                  setFormData({ ...formData, email: event.target.value })
+                  setForm({ ...form, email: event.target.value })
                 }
               />
             )}
@@ -289,9 +301,9 @@ function Authorize() {
                 ref={passwordRef}
                 type="password"
                 placeholder="Password"
-                value={formData.password}
+                value={form.password}
                 onChange={event =>
-                  setFormData({ ...formData, password: event.target.value })
+                  setForm({ ...form, password: event.target.value })
                 }
               />
             )}
@@ -301,9 +313,9 @@ function Authorize() {
                 ref={firstNameRef}
                 type="text"
                 placeholder="First Name"
-                value={formData.firstName}
+                value={form.firstName}
                 onChange={event =>
-                  setFormData({ ...formData, firstName: event.target.value })
+                  setForm({ ...form, firstName: event.target.value })
                 }
               />
             )}
@@ -313,9 +325,9 @@ function Authorize() {
                 ref={lastNameRef}
                 type="text"
                 placeholder="Last Name"
-                value={formData.lastName}
+                value={form.lastName}
                 onChange={event =>
-                  setFormData({ ...formData, lastName: event.target.value })
+                  setForm({ ...form, lastName: event.target.value })
                 }
               />
             )}
